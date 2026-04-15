@@ -1,8 +1,8 @@
 # ThreeJS-water
 
-Try it live:[ https://martinrenou.github.io/threejs-water](https://pool-9sc.pages.dev/)
+Try it live:(https://pool-9sc.pages.dev/)
 
-This is an implementation of [Evan Wallace's webgl-water demo](http://madebyevan.com/webgl-water) using [ThreeJS](http://threejs.org).
+This is an music implementation of [Evan Wallace's webgl-water demo](http://madebyevan.com/webgl-water) using [ThreeJS](http://threejs.org).
 
 You can find another implementation of the caustics computation here: https://github.com/martinRenou/threejs-caustics This other implementation supports any kind of mesh in the pool.
 
