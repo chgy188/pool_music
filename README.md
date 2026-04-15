@@ -1,4 +1,4 @@
-# ThreeJS-water
+# ThreeJS-Pool-Music
 
 Try it live:(https://pool-9sc.pages.dev/)
 
