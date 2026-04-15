@@ -1,0 +1,16 @@
+@@ -0,0 +1,15 @@
+# Backup files
+*.backup_*
+*.before_cleanup_*
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>池塘音乐秀</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/three@v0.113.0"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/three@v0.113.0/examples/js/controls/TrackballControls.js"></script>
+    
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      body {
+        overflow: hidden;
+        background: #000;
+        /* Prevent pull-to-refresh on mobile */
+        overscroll-behavior: none;
+        /* Prevent text selection */
+        -webkit-user-select: none;
+        user-select: none;
+        /* Prevent default touch behaviors */
+        touch-action: none;
+      }
+      
+      #canvas {
+        display: block;
+        width: 100vw;
+        height: 100vh;
+      }
+
+      /* Music Control Panel */
+      #music-panel {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(10px);
+        border-radius: 30px;
+        padding: 15px 25px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        opacity: 0;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        pointer-events: none;
+        z-index: 1000;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      }
+
+      #music-panel.visible {
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      #music-panel:hover {
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      .music-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+      }
+
+      .music-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.4);
+        transform: scale(1.05);
+      }
+
+      .music-btn:active {
+        transform: scale(0.95);
+      }
+
+      .play-pause-btn {
+        min-width: 100px;
+        font-weight: bold;
+      }
+
+      .music-info {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 12px;
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      input[type="file"] {
+        display: none;
+      }
+
+      /* Music Effect Intensity Slider */
+      .music-slider-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-left: 10px;
+      }
+
+      .music-slider-label {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 12px;
+        white-space: nowrap;
+      }
+
+      .music-slider {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100px;
+        height: 4px;
+        border-radius: 2px;
+        background: rgba(255, 255, 255, 0.2);
+        outline: none;
+        cursor: pointer;
+      }
+
+      .music-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #4CAF50;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      }
+
+      .music-slider::-webkit-slider-thumb:hover {
+        background: #66BB6A;
+        transform: scale(1.1);
+      }
+
+      .music-slider::-moz-range-thumb {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #4CAF50;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      }
+
+      .music-slider::-moz-range-thumb:hover {
+        background: #66BB6A;
+        transform: scale(1.1);
+      }
+
+      .music-slider-value {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 11px;
+        min-width: 35px;
+        text-align: right;
+        font-weight: bold;
+      }
+
+      /* Mobile Optimization */
+      @media (max-width: 768px) {
+        #music-panel {
+          bottom: 10px;
+          padding: 10px 15px;
+          border-radius: 20px;
+          gap: 10px;
+          max-width: 95vw;
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+
+        .music-btn {
+          padding: 8px 15px;
+          font-size: 13px;
+        }
+
+        .play-pause-btn {
+          min-width: 80px;
+        }
+
+        .music-info {
+          max-width: 150px;
+          font-size: 11px;
+          order: -1;
+          width: 100%;
+          text-align: center;
+          margin-bottom: 5px;
+        }
+
+        .music-slider-container {
+          margin-left: 0;
+        }
+
+        .music-slider {
+          width: 80px;
+          height: 6px;
+        }
+
+        .music-slider::-webkit-slider-thumb {
+          width: 20px;
+          height: 20px;
+        }
+
+        .music-slider::-moz-range-thumb {
+          width: 20px;
+          height: 20px;
+        }
+
+        .music-slider-label {
+          font-size: 11px;
+        }
+
+        .music-slider-value {
+          font-size: 10px;
+          min-width: 30px;
+        }
+      }
+
+      /* Small phones */
+      @media (max-width: 480px) {
+        #music-panel {
+          bottom: 5px;
+          padding: 8px 12px;
+          gap: 8px;
+        }
+
+        .music-btn {
+          padding: 6px 12px;
+          font-size: 12px;
+        }
+
+        .play-pause-btn {
+          min-width: 70px;
+        }
+
+        .music-info {
+          max-width: 120px;
+          font-size: 10px;
+        }
+
+        .music-slider {
+          width: 70px;
+          height: 6px;
+        }
+
+        .music-slider::-webkit-slider-thumb {
+          width: 18px;
+          height: 18px;
+        }
+
+        .music-slider::-moz-range-thumb {
+          width: 18px;
+          height: 18px;
+        }
+
+        .music-slider-label {
+          font-size: 10px;
+        }
+
+        .music-slider-value {
+          font-size: 9px;
+          min-width: 28px;
+        }
+      }
+
+      /* Touch device optimizations */
+      @media (hover: none) and (pointer: coarse) {
+        .music-btn {
+          min-height: 44px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .music-slider {
+          height: 8px;
+        }
+
+        .music-slider::-webkit-slider-thumb {
+          width: 24px;
+          height: 24px;
+        }
+
+        .music-slider::-moz-range-thumb {
+          width: 24px;
+          height: 24px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <canvas id="canvas"></canvas>
+    
+    <!-- Mobile Touch Hint -->
+    <div id="mobile-hint" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.8); color: white; padding: 20px 30px; border-radius: 15px; text-align: center; z-index: 999; pointer-events: none; animation: fadeInOut 3s ease-in-out;">
+      <div style="font-size: 48px; margin-bottom: 10px;">👆</div>
+      <div style="font-size: 16px;">触摸水面产生涟漪</div>
+      <div style="font-size: 12px; margin-top: 10px; opacity: 0.7;">点击屏幕显示控制面板</div>
+    </div>
+    
+    <style>
+      @keyframes fadeInOut {
+        0% { opacity: 0; }
+        20% { opacity: 1; }
+        80% { opacity: 1; }
+        100% { opacity: 0; }
+      }
+    </style>
+    
+    <!-- Music Control Panel -->
+    <div id="music-panel">
+      <input type="file" id="music-file" accept="audio/*">
+      <button class="music-btn" id="import-btn">📁 导入音乐</button>
+      <button class="music-btn play-pause-btn" id="play-pause-btn">▶ 播放</button>
+      <button class="music-btn" id="fullscreen-btn">⛶ 全屏</button>
+      <div class="music-info" id="music-info">未选择音乐</div>
+      <div class="music-slider-container">
+        <span class="music-slider-label">💧 强度</span>
+        <input type="range" class="music-slider" id="intensity-slider" min="0" max="100" value="70">
+        <span class="music-slider-value" id="intensity-value">70%</span>
+      </div>
+      <div class="music-slider-container">
+        <span class="music-slider-label">🎯 灵敏度</span>
+        <input type="range" class="music-slider" id="threshold-slider" min="1" max="100" value="15">
+        <span class="music-slider-value" id="threshold-value">0.15</span>
+      </div>
+    </div>
+    
+    <script type="text/javascript" src="index.js"></script>
+  </body>
+</html>
