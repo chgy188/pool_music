@@ -1,6 +1,6 @@
 # ThreeJS-water
 
-Try it live: https://martinrenou.github.io/threejs-water
+Try it live:[ https://martinrenou.github.io/threejs-water](https://pool-9sc.pages.dev/)
 
 This is an implementation of [Evan Wallace's webgl-water demo](http://madebyevan.com/webgl-water) using [ThreeJS](http://threejs.org).
 
